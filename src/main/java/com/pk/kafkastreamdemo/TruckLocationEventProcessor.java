@@ -17,7 +17,7 @@ public class TruckLocationEventProcessor {
     public KStream<String, Long> process(@Input(AnalyticsBinding.TRUCK_LOCATION_IN) KStream<String, TruckLocationEvent> stream) {
         return stream
             .filter((k, v) -> k.equals("US"))
-            .map((k, v) -> new KeyValue<>(v.getTruckNumber(), "-"))
+            .map((k, v) -> KeyValue.pair(v.getTruckNumber(), "-"))
             .groupByKey()
             .count(Materialized.as(AnalyticsBinding.US_TRUCK_COUNT_MV))
             .toStream();
