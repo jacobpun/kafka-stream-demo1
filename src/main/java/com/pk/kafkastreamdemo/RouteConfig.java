@@ -12,6 +12,7 @@ import org.springframework.web.servlet.function.ServerResponse;
 import lombok.AllArgsConstructor;
 
 import static org.springframework.web.servlet.function.ServerResponse.ok;
+import static org.springframework.web.servlet.function.ServerResponse.accepted;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 import java.util.Map;
@@ -20,22 +21,41 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@AllArgsConstructor
+import com.pk.kafkastreamdemo.model.AssignDriverEvent;
+import com.pk.kafkastreamdemo.model.TruckDashboard;
+import com.pk.kafkastreamdemo.service.TruckService;
+
+
 @Configuration
+@AllArgsConstructor
 public class RouteConfig {
     private final InteractiveQueryService queryService;
-    
+    private final TruckService truckService;
+
     @Bean
     public RouterFunction<ServerResponse> routes() {
-        return route().GET("/count", this::fetchCount).build();
+        return route()
+            .POST("/assign-driver", this::assignDriver)
+            .GET("/dashboard", this::fetchDashboard)
+            .build();
     }
 
-    public ServerResponse fetchCount(final ServerRequest req) {
-        ReadOnlyKeyValueStore<String, Long> store = this.queryService.getQueryableStore(AnalyticsBinding.US_TRUCK_COUNT_MV,
-                QueryableStoreTypes.keyValueStore());
-        Map<String, Long> countPerTruck = StreamSupport
+    public ServerResponse fetchDashboard(final ServerRequest req) {
+        ReadOnlyKeyValueStore<String, TruckDashboard> store = this.queryService
+                .getQueryableStore(AnalyticsBinding.TRUCK_DASHBOARD_MV, QueryableStoreTypes.keyValueStore());
+        Map<String, TruckDashboard> dashboard = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(store.all(), Spliterator.ORDERED), false)
                 .collect(Collectors.toMap(kv -> kv.key, kv -> kv.value));
-        return ok().body(countPerTruck);
+        return ok().body(dashboard);
+    }
+
+    public ServerResponse assignDriver(final ServerRequest req) {
+        try {
+            AssignDriverEvent body = req.body(AssignDriverEvent.class);
+            this.truckService.assignDriver(body);
+            return accepted().build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

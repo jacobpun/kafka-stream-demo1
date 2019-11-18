@@ -1,10 +1,11 @@
-package com.pk.kafkastreamdemo;
+package com.pk.kafkastreamdemo.source;
 
-import java.util.List;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.pk.kafkastreamdemo.AnalyticsBinding;
 import com.pk.kafkastreamdemo.model.TruckLocationEvent;
 
 import org.springframework.boot.ApplicationArguments;
@@ -27,26 +28,26 @@ public class TruckLocationEventSource implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        var truckNumbers = List.of("trk1", "trk2", "trk3", "trk4", "trk5");
-        var locations = List.of("US", "EU");
+        var random = new Random();
         Runnable r = () -> {
-            var locEvent = new TruckLocationEvent(
-                locations.get(new Random().nextInt(locations.size())),
-                truckNumbers.get(new Random().nextInt(truckNumbers.size())),
-                new Random().nextLong(), 
-                new Random().nextLong()
+            String truckNumber = MockData.TRUCK_NUMBERS.get(random.nextInt(MockData.TRUCK_NUMBERS.size()));
+            var locnEvent = new TruckLocationEvent(
+                new Date(),
+                truckNumber,
+                random.nextLong(), 
+                random.nextLong()
             );
             var message = MessageBuilder
-                            .withPayload(locEvent)
-                            .setHeader(MESSAGE_KEY, locEvent.getLocation().getBytes())
+                            .withPayload(locnEvent)
+                            .setHeader(MESSAGE_KEY, locnEvent.getTruckNumber().getBytes())
                             .build();
             try {
                 truckLocationOut.send(message);
-                log.info("Sent: " + locEvent);
+                log.info("Sent: " + locnEvent);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         };
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(r, 1, 1, TimeUnit.SECONDS);
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(r, 20, 20, TimeUnit.SECONDS);
     }
 }

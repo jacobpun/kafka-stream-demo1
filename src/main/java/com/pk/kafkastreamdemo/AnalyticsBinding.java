@@ -1,5 +1,7 @@
 package com.pk.kafkastreamdemo;
 
+import com.pk.kafkastreamdemo.model.AssignDriverEvent;
+import com.pk.kafkastreamdemo.model.TruckDashboard;
 import com.pk.kafkastreamdemo.model.TruckLocationEvent;
 
 import org.apache.kafka.streams.kstream.KStream;
@@ -9,21 +11,32 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 
 public interface AnalyticsBinding {
-    String TRUCK_LOCATION_OUT = "tlout";
-    String TRUCK_LOCATION_IN = "tlin";
-	String US_TRUCK_COUNT_MV = "tcmv";
-    String US_TRUCK_EVENT_COUNT_OUT = "ustout";
-	String US_TRUCK_EVENT_COUNT_IN = "ustin";
+    public String TRUCK_LOCATION_OUT = "tlout";
+    public String TRUCK_LOCATION_IN = "tlin";
+
+    public String ASSIGN_DRIVER_OUT = "drasgnout";
+    public String ASSIGN_DRIVER_IN = "drasgnin";
+
+    public String TRUCK_DASHBOARD_OUT = "tdshbrdout";
+    public String TRUCK_DASHBOARD_IN = "tdshbrdin";
+    
+	public String TRUCK_DASHBOARD_MV = "dashboardmv";
     
     @Input(TRUCK_LOCATION_IN)
-    KStream<String, TruckLocationEvent> truckLocationIn();
+    public KStream<String, TruckLocationEvent> truckLocationIn();
 
     @Output(TRUCK_LOCATION_OUT)
-    MessageChannel truckLocationOut();
+    public MessageChannel truckLocationOut();
 
-    @Input(US_TRUCK_EVENT_COUNT_IN)
-    KTable<String, Long> usTruckCountIn();
+    @Input(ASSIGN_DRIVER_IN)
+    public KStream<String, AssignDriverEvent> assignDriverIn();
 
-    @Output(US_TRUCK_EVENT_COUNT_OUT)
-    KStream<String, Long> usTruckCountOut();
+    @Output(ASSIGN_DRIVER_OUT)
+    public MessageChannel assignDriverOut();
+
+    @Output(TRUCK_DASHBOARD_OUT)
+    public KStream<String, TruckDashboard> truckDashboardOut();
+
+    @Input(TRUCK_DASHBOARD_IN)
+    public KTable<String, TruckDashboard> truckDashboardIn();
 }

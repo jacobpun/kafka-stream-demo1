@@ -8,13 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
-public class TruckLocationEvent {
+@AllArgsConstructor
+@NoArgsConstructor
+public class AssignDriverEvent {
     // @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date date;
+    private Date dateTime;
     private String truckNumber;
-    private long longitude;
-    private long latitude;
+    private String driver;
 }
