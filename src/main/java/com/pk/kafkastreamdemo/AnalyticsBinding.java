@@ -20,7 +20,7 @@ public interface AnalyticsBinding {
     public String TRUCK_DASHBOARD_OUT = "tdshbrdout";
     public String TRUCK_DASHBOARD_IN = "tdshbrdin";
     
-	public String TRUCK_DASHBOARD_MV = "dashboardmv";
+	public String TRUCK_DASHBOARD_MV = "dashboardmv2";
     
     @Input(TRUCK_LOCATION_IN)
     public KStream<String, TruckLocationEvent> truckLocationIn();
